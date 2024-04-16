@@ -1,0 +1,79 @@
+Resources:
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+       - Key: name
+         Value: development
+         
+  publicSubnet1: 
+    Type: AWS::EC2::Subnet 
+    Properties:
+      AvailabilityZone: us-east-1a 
+      CidrBlock: 10.0.0.0/26
+      MapPublicIpOnLaunch: 'true' 
+      VpcId: !Ref myVPC
+      Tags:
+       - Key: name
+         Value: public subnet1 
+     
+  publicSubnet2: 
+    Type: AWS::EC2::Subnet 
+    Properties:
+      AvailabilityZone: us-east-1b 
+      CidrBlock: 10.0.0.64/26
+      MapPublicIpOnLaunch: 'true' 
+      VpcId: !Ref myVPC
+      Tags:
+       - Key: name
+         Value: public subnet2
+     
+  privateSubnet1: 
+    Type: AWS::EC2::Subnet 
+    Properties:
+      AvailabilityZone: us-east-1a 
+      CidrBlock: 10.0.0.128/26
+      MapPublicIpOnLaunch: 'true' 
+      VpcId: !Ref myVPC
+      Tags:
+       - Key: name
+         Value: Private subnet1 
+    
+  privateSubnet2: 
+    Type: AWS::EC2::Subnet 
+    Properties:
+      AvailabilityZone: us-east-1b 
+      CidrBlock: 10.0.0.192/26
+      MapPublicIpOnLaunch: 'true' 
+      VpcId: !Ref myVPC
+      Tags:
+       - Key: name
+         Value: private subnet2    
+         
+  myIG: 
+    Type: AWS::EC2::InternetGateway 
+    Properties:
+      Tags:
+       - Key: name 
+         Value: my internet gateway 
+  
+  attachIG:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref myIG 
+      VpcId: !Ref myVPC 
+      
+  mainRouteTable: 
+    Type: AWS::EC2::RouteTable
+    Properties: 
+      VpcId: !Ref myVPC 
+      
+  mainRoute:  
+    Type: AWS::EC2::Route
+    Properties: 
+      RouteTableId: !Ref mainRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref myIG
