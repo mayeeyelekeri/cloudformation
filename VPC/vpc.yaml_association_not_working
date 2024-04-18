@@ -78,9 +78,6 @@ Resources:
     Type: AWS::EC2::RouteTable
     Properties: 
       VpcId: !Ref myVPC 
-      Tags: 
-       - Key: name 
-         Value: "main route table to internet" 
       
   mainOpenRoute:  
     Type: AWS::EC2::Route
@@ -89,27 +86,18 @@ Resources:
       DestinationCidrBlock: !Sub '{{resolve:ssm:/${environment}/vpc/open_cidr}}'
       GatewayId: !Ref myIG
 
-  publicSubnet1RouteTableAssociation:
+  myPublicSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId:
-        Ref: publicSubnet1
-      RouteTableId:
-        Ref: mainRouteTable
+      RouteTableId: !Ref mainOpenRoute
+      SubnetId: !Ref publicSubnet1
 
-  publicSubnet2RouteTableAssociation:
+  myPublicSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId:
-        Ref: publicSubnet2
-      RouteTableId:
-        Ref: mainRouteTable
+      RouteTableId: !Ref mainOpenRoute
+      SubnetId: !Ref publicSubnet2
 
 Outputs:
   VpcId: 
     Value: !Ref myVPC
-    Export: 
-      "Name" : 
-        Fn::Sub: "${AWS::StackName}-VPCID"
-
-
