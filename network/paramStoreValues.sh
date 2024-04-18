@@ -35,6 +35,18 @@ aws ssm put-parameter \
     --value "0.0.0.0/0" \
     --overwrite
 
+aws ssm put-parameter \
+    --name "/dev/network/zone1" \
+    --type "String" \
+    --value "us-east-1a" \
+    --overwrite
+
+aws ssm put-parameter \
+    --name "/dev/network/zone2" \
+    --type "String" \
+    --value "us-east-1b" \
+    --overwrite
+
 #### PROD values 
 aws ssm put-parameter \
     --name "/prod/network/vpc_cidr" \
@@ -72,3 +84,15 @@ aws ssm put-parameter \
     --value "0.0.0.0/0" \
     --overwrite
 
+aws ssm put-parameter \
+    --name "/prod/network/zone1" \
+    --type "String" \
+    --value "us-east-1a" \
+    --overwrite
+
+aws ssm put-parameter \
+    --name "/prod/network/zone2" \
+    --type "String" \
+    --value "us-east-1b" \
+    --overwrite
+aws ec2 import-key-pair --key-name info --public-key-material fileb://~/.ssh/id_rsa.pub

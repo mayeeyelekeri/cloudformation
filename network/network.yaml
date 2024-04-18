@@ -24,52 +24,60 @@ Resources:
   publicSubnet1: 
     Type: AWS::EC2::Subnet 
     Properties:
-      AvailabilityZone: us-east-1a 
+      AvailabilityZone: !Sub '{{resolve:ssm:/${environment}/network/zone1}}' 
       CidrBlock: !Sub '{{resolve:ssm:/${environment}/network/public_subnet1_cidr}}'
       MapPublicIpOnLaunch: 'true' 
       VpcId: !Ref myVPC
       Tags:
        - Key: Name
-         Value: !Join [" - ", ["PublicSubnet1", !Sub '{{resolve:ssm:/${environment}/network/public_subnet1_cidr}}'] ]
+         Value: !Join [" - ", ["PublicSubnet1", 
+                               !Sub '{{resolve:ssm:/${environment}/network/public_subnet1_cidr}}',
+                               !Sub '{{resolve:ssm:/${environment}/network/zone1}}'] ]
        - Key: Environment
          Value: !Sub ${environment}	
      
   publicSubnet2: 
     Type: AWS::EC2::Subnet 
     Properties:
-      AvailabilityZone: us-east-1b 
+      AvailabilityZone: !Sub '{{resolve:ssm:/${environment}/network/zone2}}' 
       CidrBlock: !Sub '{{resolve:ssm:/${environment}/network/public_subnet2_cidr}}'
       MapPublicIpOnLaunch: 'true' 
       VpcId: !Ref myVPC
       Tags:
        - Key: Name
-         Value: !Join [" - ", ["PublicSubnet2", !Sub '{{resolve:ssm:/${environment}/network/public_subnet1_cidr}}'] ]
+         Value: !Join [" - ", ["PublicSubnet2", 
+                               !Sub '{{resolve:ssm:/${environment}/network/public_subnet2_cidr}}',
+                               !Sub '{{resolve:ssm:/${environment}/network/zone2}}'] ]
        - Key: Environment
          Value: !Sub ${environment}	
      
   privateSubnet1: 
     Type: AWS::EC2::Subnet 
     Properties:
-      AvailabilityZone: us-east-1a 
+      AvailabilityZone: !Sub '{{resolve:ssm:/${environment}/network/zone1}}' 
       CidrBlock: !Sub '{{resolve:ssm:/${environment}/network/private_subnet1_cidr}}'
       MapPublicIpOnLaunch: 'true' 
       VpcId: !Ref myVPC
       Tags:
        - Key: Name
-         Value: !Join [" - ", ["PrivateSubnet2", !Sub '{{resolve:ssm:/${environment}/network/private_subnet1_cidr}}'] ]
+         Value: !Join [" - ", ["PrivateSubnet1", 
+                               !Sub '{{resolve:ssm:/${environment}/network/private_subnet1_cidr}}',
+                               !Sub '{{resolve:ssm:/${environment}/network/zone1}}'] ]
        - Key: Environment
          Value: !Sub ${environment}	
      
   privateSubnet2: 
     Type: AWS::EC2::Subnet 
     Properties:
-      AvailabilityZone: us-east-1b 
+      AvailabilityZone: !Sub '{{resolve:ssm:/${environment}/network/zone2}}' 
       CidrBlock: !Sub '{{resolve:ssm:/${environment}/network/private_subnet2_cidr}}'
       MapPublicIpOnLaunch: 'true' 
       VpcId: !Ref myVPC
       Tags:
        - Key: Name
-         Value: !Join [" - ", ["PrivateSubnet2", !Sub '{{resolve:ssm:/${environment}/network/private_subnet2_cidr}}'] ]
+         Value: !Join [" - ", ["PrivateSubnet2", 
+                               !Sub '{{resolve:ssm:/${environment}/network/private_subnet2_cidr}}',
+                               !Sub '{{resolve:ssm:/${environment}/network/zone2}}'] ]
        - Key: Environment
          Value: !Sub ${environment}	
      
