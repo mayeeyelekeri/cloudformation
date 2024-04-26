@@ -1,6 +1,4 @@
 aws cloudformation create-stack --stack-name ec2 --template-body file://ec2.yaml $*
 
-aws cloudformation wait stack-create-complete --stack-name ec2
-
 # To pass different environment information 
 # ./create_stack.sh --parameters ParameterKey=environment,ParameterValue=prod

@@ -23,6 +23,7 @@ Resources:
          
   publicSubnet1: 
     Type: AWS::EC2::Subnet 
+    DependsOn: myVPC
     Properties:
       AvailabilityZone: !Sub '{{resolve:ssm:/${environment}/network/zone1}}' 
       CidrBlock: !Sub '{{resolve:ssm:/${environment}/network/public_subnet1_cidr}}'
@@ -38,6 +39,7 @@ Resources:
      
   publicSubnet2: 
     Type: AWS::EC2::Subnet 
+    DependsOn: myVPC
     Properties:
       AvailabilityZone: !Sub '{{resolve:ssm:/${environment}/network/zone2}}' 
       CidrBlock: !Sub '{{resolve:ssm:/${environment}/network/public_subnet2_cidr}}'
@@ -53,6 +55,7 @@ Resources:
      
   privateSubnet1: 
     Type: AWS::EC2::Subnet 
+    DependsOn: myVPC
     Properties:
       AvailabilityZone: !Sub '{{resolve:ssm:/${environment}/network/zone1}}' 
       CidrBlock: !Sub '{{resolve:ssm:/${environment}/network/private_subnet1_cidr}}'
@@ -68,6 +71,7 @@ Resources:
      
   privateSubnet2: 
     Type: AWS::EC2::Subnet 
+    DependsOn: myVPC
     Properties:
       AvailabilityZone: !Sub '{{resolve:ssm:/${environment}/network/zone2}}' 
       CidrBlock: !Sub '{{resolve:ssm:/${environment}/network/private_subnet2_cidr}}'
@@ -126,10 +130,8 @@ Resources:
   publicSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId:
-        Ref: publicSubnet1
-      RouteTableId:
-        Ref: publicRouteTable
+      SubnetId: !Ref publicSubnet1
+      RouteTableId: !Ref publicRouteTable
 
   publicSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation

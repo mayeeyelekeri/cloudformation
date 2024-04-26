@@ -1,3 +1,9 @@
+#!/bin/bash 
+
+#### For signature error, run the command
+sudo /usr/sbin/ntpdate pool.ntp.org
+
+
 # Store all parameters to parameter store 
 ./network/paramStoreValues.sh
 ./ec2/paramStoreValues.sh
