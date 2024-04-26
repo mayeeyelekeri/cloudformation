@@ -3,11 +3,6 @@
 #### For signature error, run the command
 sudo /usr/sbin/ntpdate pool.ntp.org
 
-
-# Store all parameters to parameter store 
-./network/paramStoreValues.sh
-./ec2/paramStoreValues.sh
-
 # 1) Create Network stack  
 aws cloudformation create-stack --stack-name nw --template-body file://network/network.yaml $*
 
@@ -21,8 +16,8 @@ aws cloudformation create-stack --stack-name perm --template-body file://permiss
 # Wait for network stack to complete 
 aws cloudformation wait stack-create-complete --stack-name perm
 
-# 3) Create Permissions stack  
-aws cloudformation create-stack --stack-name ec2 --template-body file://ec2/ec2.yaml $*
+# 3) Create ec2 stack  
+#aws cloudformation create-stack --stack-name ec2 --template-body file://ec2/ec2.yaml $*
 
 # Wait for EC2 stack to complete 
-aws cloudformation wait stack-create-complete --stack-name ec2
+#aws cloudformation wait stack-create-complete --stack-name ec2
