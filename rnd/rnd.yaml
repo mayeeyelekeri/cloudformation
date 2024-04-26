@@ -23,91 +23,22 @@ Parameters:
       - dev
       - prod 
 
-Conditions: 
-  createDevResources: 
-    !Equals [ !Ref environment, "dev" ] 
-
 Resources:
-  publicInstance:
-    Description: "Open to public access, on http port 8080"
-    Type: AWS::EC2::Instance
+  codebuildBucket:
+    Description: "Create S3 bucket for storing codebuild artifacts"
+    Type: AWS::S3::Bucket
     Properties:
-      ImageId: !Sub '{{resolve:ssm:/${environment}/ec2/ami_id}}'
-      KeyName: !Sub '{{resolve:ssm:/${environment}/ec2/keyname}}'
-      InstanceType: !Sub '{{resolve:ssm:/${environment}/ec2/instance_type}}'
-      SecurityGroupIds:
-         - Fn::ImportValue:
-            Fn::Sub: "${permStackName}-PUBLIC-SG" 
-      SubnetId:
-         Fn::ImportValue:
-            Fn::Sub: "${networkStackName}-PUBLIC-SUBNET1"
-      VpcId: 
-         Fn::ImportValue: 
-           Fn::Sub: "${networkStackName}-VPCID"
-
-      UserData: !Base64
-        'Fn::Join':
-          - ''
-          - - | 
-              #!/bin/bash -x
-            - | 
-            - yum update -y
-            - yum install -y httpd.x86_64
-            - systemctl start httpd.service
-            - systemctl enable httpd.service
-            - echo "Hello World from $(hostname -f)" > /var/www/html/index.html
-
+      BucketName: !Join ['-', ["hello", !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]] ]]
+      
       Tags:
        - Key: Name
-         Value: !Join [" - ", [Fn::Sub: "${AWS::StackName}", "Public Instance"] ]
+         Value: !Join ['-', ["hello", !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]] ]]
        - Key: Environment
          Value: !Sub ${environment}	
-         
-  privateInstance:
-    Description: "Open to private access, on http port 8080"
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: !Sub '{{resolve:ssm:/${environment}/ec2/ami_id}}'
-      KeyName: !Sub '{{resolve:ssm:/${environment}/ec2/keyname}}'
-      InstanceType: !Sub '{{resolve:ssm:/${environment}/ec2/instance_type}}'
-      SecurityGroupIds:
-         - Fn::ImportValue:
-            Fn::Sub: "${permStackName}-PRIVATE-SG" 
-      SubnetId:
-         Fn::ImportValue:
-            Fn::Sub: "${networkStackName}-PRIVATE-SUBNET1"
-      VpcId: 
-         Fn::ImportValue: 
-           Fn::Sub: "${networkStackName}-VPCID"
-
-      UserData: !Base64
-        'Fn::Join':
-          - ''
-          - - | 
-              #!/bin/bash -x
-            - | 
-            - yum update -y
-            - yum install -y httpd.x86_64
-            - systemctl start httpd.service
-            - systemctl enable httpd.service
-            - echo "Hello World from $(hostname -f)" > /var/www/html/index.html
-
-      Tags:
-       - Key: Name
-         Value: !Join [" - ", [Fn::Sub: "${AWS::StackName}", "Private Instance"] ]
-       - Key: Environment
-         Value: !Sub ${environment}	
-
+      
 Outputs:
-  PublicInstance:
-    Value: !Ref publicInstance
+  BucketName:
+    Value: !Ref codebuildBucket
     Export:
       "Name" :
-        Fn::Sub: "${AWS::StackName}-PUBLIC-INSTANCE"
-
-  PrivateInstance:
-    Value: !Ref privateInstance
-    Export:
-      "Name" :
-        Fn::Sub: "${AWS::StackName}-PRIVATE-INSTANCE"
-
+        Fn::Sub: "${AWS::StackName}-CODEBUILD-BUCKET"

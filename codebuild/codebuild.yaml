@@ -23,18 +23,26 @@ Resources:
     Description: "Create S3 bucket for storing codebuild artifacts"
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join['-', [!Sub '{{resolve:ssm:/${environment}/codebuild/bucket_name}}' , !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]] ]]
+      BucketName: !Join ["-", [!Sub '{{resolve:ssm:/${environment}/codebuild/bucket_prefix}}', !Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]] ]]
       
       Tags:
        - Key: Name
          Value: !Join [" - ", [Fn::Sub: "${AWS::StackName}", "bucket "] ]
        - Key: Environment
          Value: !Sub ${environment}	
+  
+  gitCreds:
+    Type: AWS::CodeBuild::SourceCredential
+    Properties:
+        AuthType: '{{resolve:secretsmanager:git_creds:SecretString:auth_type}}'
+        ServerType: '{{resolve:secretsmanager:git_creds:SecretString:server_type}}'
+        Token: '{{resolve:secretsmanager:git_creds:SecretString:token}}'
+        Username: '{{resolve:secretsmanager:git_creds:SecretString:username}}'
       
 Outputs:
   BucketName:
     Value: !Ref codebuildBucket
     Export:
       "Name" :
-        Fn::Sub: "${AWS::StackName}-CODEBUILD_BUCKET"
+        Fn::Sub: "${AWS::StackName}-CODEBUILD-BUCKET"
 
