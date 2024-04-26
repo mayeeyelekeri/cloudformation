@@ -18,6 +18,14 @@ Parameters:
       - dev
       - prod 
 
+  codebuildProjectName:
+    Description: CI CodeBuild Project Name
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
+    Default: '{{resolve:ssm:/${environment}/codebuild/project_name}}'
+    
 Resources:
   codebuildBucket:
     Description: "Create S3 bucket for storing codebuild artifacts"
@@ -38,11 +46,86 @@ Resources:
         ServerType: '{{resolve:secretsmanager:git_creds:SecretString:server_type}}'
         Token: '{{resolve:secretsmanager:git_creds:SecretString:token}}'
         Username: '{{resolve:secretsmanager:git_creds:SecretString:username}}'
-      
+  
+  SampleCloudFormationCodeBuildBFFServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${codebuildProjectName}-codebuild-base-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${codebuildProjectName}-CloudWatchLogs-BuildLogGroup-Name
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${codebuildProjectName}-CloudWatchLogs-BuildLogGroup-Name:*
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+              - Effect: Allow
+                Resource:
+                  - !Sub arn:aws:s3:::codepipeline-${AWS::Region}-*
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketAcl
+                  - s3:GetBucketLocation
+        - PolicyName: !Sub ${codebuildProjectName}-codebuild-vpc-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Resource:
+                  - "*"
+                Action:
+                  - ec2:CreateNetworkInterface
+                  - ec2:DescribeDhcpOptions
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DeleteNetworkInterface
+                  - ec2:DescribeSubnets
+                  - ec2:DescribeSecurityGroups
+                  - ec2:DescribeVpcs
+              - Effect: Allow
+                Resource:
+                  - !Sub arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:network-interface/*
+                Action:
+                  - ec2:CreateNetworkInterfacePermission
+                Condition:
+                  StringEquals:
+                    ec2:Subnet:
+                      - Fn::ImportValue: !Sub ${StackName}-PrivateSubnet1Arn
+                      - Fn::ImportValue: !Sub ${StackName}-PrivateSubnet2Arn
+                    ec2:AuthorizedService: codebuild.amazonaws.com
+        - PolicyName: !Sub ${codebuildProjectName}-ssm-parameterstore-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Resource:
+                  - "*"
+                Action:
+                  - ssm:DescribeParameters
+              - Effect: Allow
+                Resource:
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*
+                Action:
+                  - ssm:GetParameters    
 Outputs:
   BucketName:
     Value: !Ref codebuildBucket
     Export:
       "Name" :
         Fn::Sub: "${AWS::StackName}-CODEBUILD-BUCKET"
+
 
