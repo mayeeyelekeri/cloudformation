@@ -23,7 +23,7 @@ Resources:
     Description: "Create S3 bucket for storing codebuild artifacts"
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join['-', [!Sub '{{resolve:ssm:/${environment}/codebuild/bucket_name}}'], [!Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]]] ]]
+      BucketName: !Join['-', [!Sub '{{resolve:ssm:/${environment}/codebuild/bucket_name}}'], [!Select [4, !Split ['-', !Select [2, !Split ['/', !Ref AWS::StackId]]] ]]
       
       Tags:
        - Key: Name
