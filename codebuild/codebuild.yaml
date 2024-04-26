@@ -23,7 +23,6 @@ Parameters:
     Type: String
     MinLength: 1
     MaxLength: 255
-    AllowedPattern: ^[a-zA-Z][-a-zA-Z0-9]*$
     Default: '{{resolve:ssm:/${environment}/codebuild/project_name}}'
     
 Resources:
