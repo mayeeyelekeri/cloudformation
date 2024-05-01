@@ -1,4 +1,4 @@
-aws cloudformation update-stack --stack-name codebuild --template-body file://codebuild.yaml $*
+aws cloudformation update-stack --stack-name codebuild --capabilities CAPABILITY_NAMED_IAM --template-body file://codebuild.yaml $*
 
 aws cloudformation wait stack-update-complete --stack-name codebuild
 

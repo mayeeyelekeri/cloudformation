@@ -8,7 +8,7 @@ if [ $1 ]; then
 fi
  
 #### For signature error, run the command
-#sudo /usr/sbin/ntpdate pool.ntp.org
+sudo /usr/sbin/ntpdate pool.ntp.org
 
 . ~/INFO/secrets/aws_secrets.sh 
 
