@@ -1,17 +1,12 @@
-# Delete EC2 stack  
-aws cloudformation delete-stack --stack-name ec2 
+#!/bin/bash
 
-# Wait 
-aws cloudformation wait stack-delete-complete --stack-name ec2
+dirs=(codebuild autoscale alb permissions network)
 
-# Delete Permissions stack  
-aws cloudformation delete-stack --stack-name perm 
+# Change into each directory and execute delete stack script
+for i in "${dirs[@]}"
+do
+   echo deleting $i stack ....
+   (cd $i && ./delete_stack.sh)
+   echo .. done deleting $i stack!!!
+done
 
-# Wait 
-aws cloudformation wait stack-delete-complete --stack-name perm
-
-# Delete Network stack  
-aws cloudformation delete-stack --stack-name nw 
-
-# Wait 
-aws cloudformation wait stack-delete-complete --stack-name nw

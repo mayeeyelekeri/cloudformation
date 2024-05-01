@@ -1,0 +1,63 @@
+Description: "Create CodeDeploy project"
+
+Parameters: 
+  networkStackName:
+    Description: Name of the base stack with all network resources
+    Type: String
+    Default: nw
+
+  permStackName:
+    Description: Name of the base stack with all network resources
+    Type: String
+    Default: perm
+
+  albStackName:
+    Description: Name of the base stack with all network resources
+    Type: String
+    Default: alb
+
+  autoscaleStackName:
+    Description: Name of the base stack with all network resources
+    Type: String
+    Default: autoscale
+
+  environment: 
+    Type: String 
+    Default: dev 
+    AllowedValues: 
+      - dev
+      - prod 
+
+Resources:
+  myCodeDeployProject: 
+    Type: AWS::CodeDeploy::Application
+    Properties: 
+      ApplicationName: !Sub '{{resolve:ssm:/${environment}/codebuild/project_name}}' 
+      Tags:
+       - Key: Name
+         Value: !Join [" - ", [Fn::Sub: "${AWS::StackName}", "app "] ]
+       - Key: Environment
+         Value: !Sub ${environment}
+
+  myCodeDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: mycodedeployrole
+      Path: /
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codedeploy.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+Outputs:
+  CodeDeployRole:
+    Value: !Ref myCodeDeployRole
+    Export:
+      "Name" :
+        Fn::Sub: "${AWS::StackName}-DEPLOY-ROLE"
+
+
