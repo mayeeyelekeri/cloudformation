@@ -16,8 +16,15 @@ aws cloudformation create-stack --stack-name perm --template-body file://permiss
 # Wait for network stack to complete 
 aws cloudformation wait stack-create-complete --stack-name perm
 
-# 3) Create ec2 stack  
+# 3) Create codebuild stack  
+aws cloudformation create-stack --stack-name ec2 --capabilities CAPABILITY_NAMED_IAM --template-body file://codebuild/codebuild.yaml $*
+
+# Wait for EC2 stack to complete 
+aws cloudformation wait stack-create-complete --capabilities CAPABILITY_NAMED_IAM --stack-name codebuild
+
+# 4) Create ec2 stack  
 #aws cloudformation create-stack --stack-name ec2 --template-body file://ec2/ec2.yaml $*
 
 # Wait for EC2 stack to complete 
 #aws cloudformation wait stack-create-complete --stack-name ec2
+
