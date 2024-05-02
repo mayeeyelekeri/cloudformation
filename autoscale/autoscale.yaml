@@ -24,6 +24,12 @@ Parameters:
       - prod 
 
 Resources:
+ ec2WaitCondition: 
+    Type: AWS::CloudFormation::WaitCondition
+    CreationPolicy: 
+      ResourceSignal:
+        Timeout: PT10M
+        
  template:
     Type: AWS::EC2::LaunchTemplate
     Metadata:
@@ -75,7 +81,7 @@ Resources:
             #!/bin/bash
             yum update -y aws-cfn-bootstrap
             /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource template --configsets setup --region ${AWS::Region}
-            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource template --region ${AWS::Region}
+            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ec2WaitCondition --region ${AWS::Region}
  scalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
