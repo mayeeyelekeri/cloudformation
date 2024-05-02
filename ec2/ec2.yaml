@@ -81,6 +81,56 @@ Resources:
        - Key: Environment
          Value: !Sub ${environment}	
          
+  publicInstance2:
+    Description: "Httpd web server, on http port 80"
+    Type: AWS::EC2::Instance
+    Condition: createOnlyProdResources
+    Metadata:
+      Comment1: Install Httpd 
+      "AWS::CloudFormation::Init":
+        configSets:
+          setup:
+            - install_httpd 
+        install_httpd:
+          packages:
+            yum:
+              httpd: []
+          commands:
+            create_user: 
+              command: "echo "Hello World from $(hostname -f)" > /var/www/html/index.html"
+          services:
+            sysvinit:
+              httpd:
+                enabled: true
+                ensureRunning: true
+    Properties:
+      ImageId: !Sub '{{resolve:ssm:/${environment}/ec2/ami_id}}'
+      KeyName: !Sub '{{resolve:ssm:/${environment}/ec2/keyname}}'
+      InstanceType: !Sub '{{resolve:ssm:/${environment}/ec2/instance_type}}'
+      SecurityGroupIds:
+         - Fn::ImportValue:
+            Fn::Sub: "${permStackName}-PUBLIC-SG" 
+      SubnetId:
+         Fn::ImportValue:
+            Fn::Sub: "${networkStackName}-PUBLIC-SUBNET1"
+      VpcId: 
+         Fn::ImportValue: 
+           Fn::Sub: "${networkStackName}-VPCID"
+
+      UserData:
+        Fn::Base64:
+          !Sub | 
+            #!/bin/bash -xe
+            yum update -y aws-cfn-bootstrap
+            /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource publicInstance2 --configsets setup --region ${AWS::Region}
+            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource publicInstance2 --region ${AWS::Region}
+
+      Tags:
+       - Key: Name
+         Value: !Join [" - ", [Fn::Sub: "${AWS::StackName}", "Public Instance "] ]
+       - Key: Environment
+         Value: !Sub ${environment}	
+         
 Outputs:
   PublicInstance:
     Condition: createOnlyProdResources
