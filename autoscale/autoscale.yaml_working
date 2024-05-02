@@ -92,9 +92,9 @@ Resources:
       Path: "/"
       Roles: 
         - 
-          Ref: myInstanceRole
+          Ref: DescribeHealthRole
 
- myInstanceRole:
+ DescribeHealthRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
