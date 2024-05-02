@@ -58,8 +58,8 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Name: my-target-group
-      Port: !Sub '{{resolve:ssm:/${environment}/alb/application_port}}'  
       Protocol: HTTP
+      Port: !Sub '{{resolve:ssm:/${environment}/alb/application_port}}'  
       VpcId: 
          Fn::ImportValue: 
            Fn::Sub: "${networkStackName}-VPCID"

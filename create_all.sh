@@ -3,7 +3,7 @@
 #### For signature error, run the command
 sudo /usr/sbin/ntpdate pool.ntp.org
 
-dirs=(network permissions alb autoscale codebuild) 
+dirs=(network permissions alb autoscale codebuild codedeploy) 
 
 # Change into each directory and execute create stack script 
 for i in "${dirs[@]}"

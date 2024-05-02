@@ -30,6 +30,10 @@ Resources:
       LaunchTemplateName: 
         !Sub '{{resolve:ssm:/${environment}/autoscale/template_name}}'  
       LaunchTemplateData: 
+        IamInstanceProfile: 
+          Arn: !GetAtt
+            - myInstanceProfile
+            - Arn
         SecurityGroupIds: 
           - Fn::ImportValue: 
              Fn::Sub: "${permStackName}-PUBLIC-SG"
@@ -70,6 +74,10 @@ Resources:
           !Sub '{{resolve:ssm:/${environment}/autoscale/autoscale_max}}'  
       DesiredCapacity: 
           !Sub '{{resolve:ssm:/${environment}/autoscale/autoscale_desired}}'  
+      TargetGroupARNs: 
+          - Fn::ImportValue: 
+             Fn::Sub: "${albStackName}-TARGET-GROUP"
+        
       Tags:
        - Key: Name
          Value: !Join [" - ", [Fn::Sub: "${AWS::StackName}", " auto"] ]
@@ -78,11 +86,47 @@ Resources:
          Value: !Sub ${environment}	
          PropagateAtLaunch: true
 
+ myInstanceProfile: 
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Path: "/"
+      Roles: 
+        - 
+          Ref: DescribeHealthRole
+
+ DescribeHealthRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: s3accesspolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:GetObjectVersion
+                Resource: '*'
+
 Outputs:
   LoadBalancer:
     Value: !Ref template
     Export:
       "Name" :
         Fn::Sub: "${AWS::StackName}-TEMPLATE"
+  AutoscaleGroup:
+    Value: !Ref scalingGroup
+    Export:
+      "Name" :
+        Fn::Sub: "${AWS::StackName}-AUTOSCALE-GROUP"
 
 

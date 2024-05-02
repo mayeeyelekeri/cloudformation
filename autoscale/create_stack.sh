@@ -1,4 +1,4 @@
-aws cloudformation create-stack --stack-name autoscale --template-body file://autoscale.yaml $*
+aws cloudformation create-stack --stack-name autoscale --capabilities CAPABILITY_NAMED_IAM --template-body file://autoscale.yaml $*
 
 aws cloudformation wait stack-create-complete --stack-name autoscale
 
