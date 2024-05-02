@@ -97,7 +97,7 @@ Resources:
               httpd: []
           commands:
             create_user: 
-              command: "echo "Hello World from $(hostname -f)" > /var/www/html/index.html"
+              command: "echo "Hello World from $(hostname -f) > /var/www/html/index.html"
           services:
             sysvinit:
               httpd:
