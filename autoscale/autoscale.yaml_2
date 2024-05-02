@@ -26,32 +26,6 @@ Parameters:
 Resources:
  template:
     Type: AWS::EC2::LaunchTemplate
-    Metadata:
-      Comment1: Install docker and codedeploy agent
-      "AWS::CloudFormation::Init":
-        configSets:
-          setup:
-            - install_docker
-            - install_codedeploy_agent
-        install_docker:
-          packages:
-            yum:
-              docker: []
-          commands:
-            create_user:
-              command: "usermod -a -G docker ec2-user"
-          services:
-            sysvinit:
-              docker:
-                enabled: true
-                ensureRunning: true
-        install_codedeploy_agent:
-          packages:
-            yum:
-              ruby: []
-          commands:
-            download:
-              command: "wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install && chmod a+x ./install && ./install auto -v releases/codedeploy-agent-1.4.1-2244.noarch.rpm"
     Properties:
       LaunchTemplateName: 
         !Sub '{{resolve:ssm:/${environment}/autoscale/template_name}}'  
@@ -73,9 +47,15 @@ Resources:
          Fn::Base64:
           !Sub | 
             #!/bin/bash
-            yum update -y aws-cfn-bootstrap
-            /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource template --configsets setup --region ${AWS::Region}
-            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource template --region ${AWS::Region}
+            yum update -y 
+            yum install -y docker 
+            usermod -a -G docker ec2-user
+            systemctl start docker.service
+            yum install -y ruby 
+            wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install 
+            chmod a+x ./install 
+            ./install auto -v releases/codedeploy-agent-1.4.1-2244.noarch.rpm
+
  scalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:

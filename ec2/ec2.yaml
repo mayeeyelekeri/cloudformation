@@ -33,6 +33,7 @@ Resources:
         configSets:
           setup:
             - install_docker
+            - install_codedeploy_agent 
         install_docker:
           packages:
             yum:
@@ -41,10 +42,17 @@ Resources:
             create_user: 
               command: "usermod -a -G docker ec2-user"
           services:
-            start_docker:
-              docker.service:
+            sysvinit:
+              docker:
                 enabled: true
                 ensureRunning: true
+        install_codedeploy_agent:
+          packages:
+            yum:
+              ruby: []
+          commands:
+            download: 
+              command: "wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install && chmod a+x ./install && ./install auto -v releases/codedeploy-agent-1.4.1-2244.noarch.rpm"
     Properties:
       ImageId: !Sub '{{resolve:ssm:/${environment}/ec2/ami_id}}'
       KeyName: !Sub '{{resolve:ssm:/${environment}/ec2/keyname}}'
@@ -73,44 +81,6 @@ Resources:
        - Key: Environment
          Value: !Sub ${environment}	
          
-  privateInstance:
-    Description: "Open to private access, on http port 8080"
-    Type: AWS::EC2::Instance
-    Condition: createOnlyProdResources
-    Metadata: 
-      AWS::CloudFormation::Init:
-        config:
-         files:
-          /var/www/html/index.html:
-            content: TestString
-    Properties:
-      ImageId: !Sub '{{resolve:ssm:/${environment}/ec2/ami_id}}'
-      KeyName: !Sub '{{resolve:ssm:/${environment}/ec2/keyname}}'
-      InstanceType: !Sub '{{resolve:ssm:/${environment}/ec2/instance_type}}'
-      SecurityGroupIds:
-         - Fn::ImportValue:
-            Fn::Sub: "${permStackName}-PRIVATE-SG" 
-      SubnetId:
-         Fn::ImportValue:
-            Fn::Sub: "${networkStackName}-PRIVATE-SUBNET1"
-      VpcId: 
-         Fn::ImportValue: 
-           Fn::Sub: "${networkStackName}-VPCID"
-
-      
-      UserData:
-        Fn::Base64:
-          !Sub | 
-            #!/bin/bash -x 
-            yum update -y aws-cfn-bootstrap
-            /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource ECSLaunchTemplate --region ${AWS::Region}
-            yum -y update
-      Tags:
-       - Key: Name
-         Value: !Join [" - ", [!Sub "${AWS::StackName}", "Private Instance" , "hello"]  ]
-       - Key: Environment
-         Value: !Sub ${environment}	
-
 Outputs:
   PublicInstance:
     Condition: createOnlyProdResources
@@ -118,11 +88,4 @@ Outputs:
     Export:
       "Name" :
         Fn::Sub: "${AWS::StackName}-PUBLIC-INSTANCE"
-
-  PrivateInstance:
-    Condition: createOnlyProdResources
-    Value: !Ref privateInstance
-    Export:
-      "Name" :
-        Fn::Sub: "${AWS::StackName}-PRIVATE-INSTANCE"
 
