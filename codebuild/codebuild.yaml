@@ -118,7 +118,7 @@ Resources:
                       - s3:GetObject
                       - s3:PutObject
                       - s3:GetObjectVersion
-                  Resource: !Sub arn:aws:s3:::${codebuildBucket}/*
+                  Resource: "*"
 
 Outputs:
   BucketName:
@@ -132,5 +132,11 @@ Outputs:
     Export:
       "Name" :
         !Sub "${AWS::StackName}-CODEBUILD-PROJECT"
+
+  GitCreds:
+    Value: !Ref gitCreds1
+    Export:
+      "Name" :
+        !Sub "${AWS::StackName}-GIT-CREDS"
 
 

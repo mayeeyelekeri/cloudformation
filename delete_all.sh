@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dirs=(codedeploy codebuild autoscale alb permissions network)
+dirs=(codepipeline codedeploy codebuild autoscale alb permissions network)
 
 # Change into each directory and execute delete stack script
 for i in "${dirs[@]}"

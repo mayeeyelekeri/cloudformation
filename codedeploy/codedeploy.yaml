@@ -69,6 +69,17 @@ Resources:
             Action:
               - sts:AssumeRole
       Policies:
+        - PolicyName: "S3"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+                -
+                  Effect: "Allow"
+                  Action:
+                      - s3:GetObject
+                      - s3:PutObject
+                      - s3:GetObjectVersion
+                  Resource: "*"
         - PolicyName: "autoscale"
           PolicyDocument:
             Version: "2012-10-17"
@@ -126,4 +137,9 @@ Outputs:
       "Name" :
         Fn::Sub: "${AWS::StackName}-DEPLOY-ROLE"
 
+  CodeDeployGroup:
+    Value: !Ref myDeployGroup
+    Export:
+      "Name" :
+        Fn::Sub: "${AWS::StackName}-DEPLOY-GROUP"
 

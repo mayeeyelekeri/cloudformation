@@ -19,4 +19,5 @@ echo environment is $environment
 ./alb/init.sh $1
 ./autoscale/init.sh $1
 ./codebuild/init.sh $1
+./codepipeline/init.sh $1
 
